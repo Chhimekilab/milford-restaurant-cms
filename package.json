@@ -1,0 +1,15 @@
+{
+  "name": "milford-restaurant-cms",
+  "version": "1.0.0",
+  "description": "Content Management System for Milford India Spice Restaurant",
+  "main": "index.html",
+  "scripts": {
+    "dev": "serve .",
+    "build": "echo 'Build complete'",
+    "start": "serve ."
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}
