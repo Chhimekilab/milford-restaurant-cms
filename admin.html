@@ -152,10 +152,29 @@
             transition: all 0.3s ease;
         }
 
-        .photo-upload-area:hover {
-            border-color: var(--primary-color);
-            background: #f8f9fa;
-        }
+                 .photo-upload-area:hover {
+             border-color: var(--primary-color);
+             background: #f8f9fa;
+         }
+
+         .availability-out-of-stock { background-color: #dc3545; }
+         .availability-seasonal { background-color: #fd7e14; }
+         .availability-temporarily-unavailable { background-color: #ffc107; color: #000; }
+         .availability-available { background-color: #28a745; }
+         
+         .availability-info {
+             background: #fff3cd;
+             border: 1px solid #ffeaa7;
+             border-radius: 4px;
+             padding: 8px;
+             margin-top: 8px;
+             font-size: 0.85em;
+         }
+
+         .availability-info.out-of-stock {
+             background: #f8d7da;
+             border-color: #f5c6cb;
+         }
     </style>
 </head>
 <body>
@@ -222,23 +241,31 @@
                     
                     <!-- Menu Management Tab -->
                     <div class="tab-pane fade show active" id="menu" role="tabpanel">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h3><i class="fas fa-utensils"></i> Menu Items</h3>
-                            <div>
-                                <select id="categoryFilter" class="form-select d-inline-block w-auto me-2">
-                                    <option value="all">All Categories</option>
-                                </select>
-                                <button class="btn btn-success me-2" onclick="addMenuItem()">
-                                    <i class="fas fa-plus"></i> Add Item
-                                </button>
-                                <button class="btn btn-primary me-2" onclick="importMenu()">
-                                    <i class="fas fa-upload"></i> Import Excel
-                                </button>
-                                <button class="btn btn-info" onclick="manageCategories()">
-                                    <i class="fas fa-tags"></i> Categories
-                                </button>
-                            </div>
-                        </div>
+                                                 <div class="d-flex justify-content-between align-items-center mb-4">
+                             <h3><i class="fas fa-utensils"></i> Menu Items</h3>
+                             <div>
+                                 <select id="categoryFilter" class="form-select d-inline-block w-auto me-2">
+                                     <option value="all">All Categories</option>
+                                 </select>
+                                 <select id="availabilityFilter" class="form-select d-inline-block w-auto me-2">
+                                     <option value="all">All Items</option>
+                                     <option value="available">Available Only</option>
+                                     <option value="unavailable">Unavailable Only</option>
+                                     <option value="out-of-stock">Out of Stock</option>
+                                     <option value="seasonal">Seasonal</option>
+                                     <option value="temporarily-unavailable">Temporarily Unavailable</option>
+                                 </select>
+                                 <button class="btn btn-success me-2" onclick="addMenuItem()">
+                                     <i class="fas fa-plus"></i> Add Item
+                                 </button>
+                                 <button class="btn btn-primary me-2" onclick="importMenu()">
+                                     <i class="fas fa-upload"></i> Import Excel
+                                 </button>
+                                 <button class="btn btn-info" onclick="manageCategories()">
+                                     <i class="fas fa-tags"></i> Categories
+                                 </button>
+                             </div>
+                         </div>
                         
                         <div id="menuItemsList">
                             <!-- Menu items will be populated here -->
@@ -502,13 +529,29 @@
             location.reload();
         }
 
-        // Load stored data from localStorage
-        function loadStoredData() {
-            const stored = localStorage.getItem('restaurantData');
-            if (stored) {
-                restaurantData = JSON.parse(stored);
-            }
-        }
+                 // Load stored data from localStorage
+         function loadStoredData() {
+             const stored = localStorage.getItem('restaurantData');
+             if (stored) {
+                 restaurantData = JSON.parse(stored);
+                 
+                 // Migrate existing menu items to include new availability fields
+                 restaurantData.menuItems.forEach(item => {
+                     if (!item.hasOwnProperty('availabilityStatus')) {
+                         item.availabilityStatus = item.available ? 'available' : 'out-of-stock';
+                     }
+                     if (!item.hasOwnProperty('unavailableReason')) {
+                         item.unavailableReason = '';
+                     }
+                     if (!item.hasOwnProperty('estimatedBackDate')) {
+                         item.estimatedBackDate = '';
+                     }
+                 });
+                 
+                 // Save the migrated data
+                 saveData();
+             }
+         }
 
         // Save data to localStorage
         function saveData() {
@@ -576,76 +619,213 @@
         }
 
         // Menu Management Functions
-        function populateMenuItems() {
-            const container = document.getElementById('menuItemsList');
-            const filter = document.getElementById('categoryFilter').value;
-            
-            const filteredItems = filter === 'all' ? 
-                restaurantData.menuItems : 
-                restaurantData.menuItems.filter(item => item.category === filter);
+                 function populateMenuItems() {
+             const container = document.getElementById('menuItemsList');
+             const categoryFilter = document.getElementById('categoryFilter').value;
+             const availabilityFilter = document.getElementById('availabilityFilter').value;
+             
+             let filteredItems = restaurantData.menuItems;
+             
+             // Filter by category
+             if (categoryFilter !== 'all') {
+                 filteredItems = filteredItems.filter(item => item.category === categoryFilter);
+             }
+             
+             // Filter by availability status
+             if (availabilityFilter !== 'all') {
+                 if (availabilityFilter === 'available') {
+                     filteredItems = filteredItems.filter(item => item.available);
+                 } else if (availabilityFilter === 'unavailable') {
+                     filteredItems = filteredItems.filter(item => !item.available);
+                 } else {
+                     filteredItems = filteredItems.filter(item => 
+                         !item.available && item.availabilityStatus === availabilityFilter
+                     );
+                 }
+             }
 
-            if (filteredItems.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-5">
-                        <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
-                        <h5>No menu items yet</h5>
-                        <p class="text-muted">Add your first menu item to get started</p>
-                    </div>
-                `;
-                return;
-            }
+                         // Add stock summary at the top
+             let summaryHTML = '';
+             if (restaurantData.menuItems.length > 0) {
+                 summaryHTML = showStockSummary();
+             }
 
-            container.innerHTML = filteredItems.map(item => `
-                <div class="menu-item-card">
-                    <div class="row align-items-center">
-                        <div class="col-md-2">
-                            <img src="${item.image || 'https://via.placeholder.com/100x100?text=No+Image'}" 
-                                 alt="${item.name}" class="menu-image">
-                            <button class="btn btn-sm btn-outline-primary mt-2" onclick="changeItemImage(${item.id})">
-                                <i class="fas fa-camera"></i>
-                            </button>
-                        </div>
-                        <div class="col-md-6">
-                            <h5>${item.name} 
-                                <span class="badge bg-secondary">${item.category}</span>
-                                ${item.isSpicy ? '<i class="fas fa-pepper-hot spice-level" title="Spicy"></i>' : ''}
-                                ${item.isVegetarian ? '<i class="fas fa-leaf vegetarian" title="Vegetarian"></i>' : ''}
-                            </h5>
-                            <p class="text-muted mb-2">${item.description}</p>
-                            <small class="text-muted">
-                                <i class="fas fa-clock"></i> ${item.preparationTime || '15-20 mins'}
-                                ${item.allergens ? ` | <i class="fas fa-exclamation-triangle"></i> ${item.allergens}` : ''}
-                            </small>
-                        </div>
-                        <div class="col-md-2">
-                            <h4 class="text-primary">$${item.price.toFixed(2)}</h4>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" 
-                                       ${item.available ? 'checked' : ''} 
-                                       onchange="toggleItemAvailability(${item.id})">
-                                <label class="form-check-label">Available</label>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-warning btn-sm me-2" onclick="editMenuItem(${item.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteMenuItem(${item.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+             if (filteredItems.length === 0) {
+                 container.innerHTML = summaryHTML + `
+                     <div class="text-center py-5">
+                         <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
+                         <h5>No menu items match the current filter</h5>
+                         <p class="text-muted">Try adjusting your filters or add new menu items</p>
+                     </div>
+                 `;
+                 return;
+             }
+
+                         container.innerHTML = summaryHTML + filteredItems.map(item => {
+                 const availabilityBadge = getAvailabilityBadge(item);
+                 const availabilityInfo = getAvailabilityInfo(item);
+                 
+                 return `
+                 <div class="menu-item-card">
+                     <div class="row align-items-center">
+                         <div class="col-md-2">
+                             <img src="${item.image || 'https://via.placeholder.com/100x100?text=No+Image'}" 
+                                  alt="${item.name}" class="menu-image">
+                             <button class="btn btn-sm btn-outline-primary mt-2" onclick="changeItemImage(${item.id})">
+                                 <i class="fas fa-camera"></i>
+                             </button>
+                         </div>
+                         <div class="col-md-5">
+                             <h5>${item.name} 
+                                 <span class="badge bg-secondary">${item.category}</span>
+                                 ${item.isSpicy ? '<i class="fas fa-pepper-hot spice-level" title="Spicy"></i>' : ''}
+                                 ${item.isVegetarian ? '<i class="fas fa-leaf vegetarian" title="Vegetarian"></i>' : ''}
+                                 ${availabilityBadge}
+                             </h5>
+                             <p class="text-muted mb-2">${item.description}</p>
+                             <small class="text-muted">
+                                 <i class="fas fa-clock"></i> ${item.preparationTime || '15-20 mins'}
+                                 ${item.allergens ? ` | <i class="fas fa-exclamation-triangle"></i> ${item.allergens}` : ''}
+                             </small>
+                             ${availabilityInfo}
+                         </div>
+                         <div class="col-md-2">
+                             <h4 class="text-primary">$${item.price.toFixed(2)}</h4>
+                             <button class="btn btn-sm ${item.available ? 'btn-success' : 'btn-outline-danger'} mb-2" 
+                                     onclick="manageAvailability(${item.id})">
+                                 <i class="fas ${item.available ? 'fa-check' : 'fa-times'}"></i>
+                                 ${item.available ? 'Available' : 'Unavailable'}
+                             </button>
+                         </div>
+                         <div class="col-md-3">
+                             <div class="btn-group-vertical w-100">
+                                 <button class="btn btn-warning btn-sm mb-1" onclick="editMenuItem(${item.id})">
+                                     <i class="fas fa-edit"></i> Edit Details
+                                 </button>
+                                 <button class="btn btn-info btn-sm mb-1" onclick="manageAvailability(${item.id})">
+                                     <i class="fas fa-inventory"></i> Stock Status
+                                 </button>
+                                 <button class="btn btn-danger btn-sm" onclick="deleteMenuItem(${item.id})">
+                                     <i class="fas fa-trash"></i> Delete
+                                 </button>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+                 `;
+             }).join('');
         }
 
-        function populateCategories() {
-            const filter = document.getElementById('categoryFilter');
-            filter.innerHTML = '<option value="all">All Categories</option>' +
-                restaurantData.categories.map(cat => 
-                    `<option value="${cat}">${cat}</option>`
-                ).join('');
-        }
+                 function getAvailabilityBadge(item) {
+             if (item.available) {
+                 return '<span class="badge availability-available ms-2">Available</span>';
+             }
+             
+             const status = item.availabilityStatus || 'unavailable';
+             const badgeClass = `availability-${status.replace(/ /g, '-')}`;
+             const statusText = status.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+             
+             return `<span class="badge ${badgeClass} ms-2">${statusText}</span>`;
+         }
+
+         function getAvailabilityInfo(item) {
+             if (item.available) return '';
+             
+             let infoClass = 'availability-info';
+             if (item.availabilityStatus === 'out-of-stock') {
+                 infoClass += ' out-of-stock';
+             }
+             
+             let infoText = '';
+             if (item.unavailableReason) {
+                 infoText += `<i class="fas fa-info-circle"></i> ${item.unavailableReason}`;
+             }
+             if (item.estimatedBackDate) {
+                 if (infoText) infoText += '<br>';
+                 infoText += `<i class="fas fa-calendar"></i> Expected back: ${formatDate(item.estimatedBackDate)}`;
+             }
+             
+             return infoText ? `<div class="${infoClass}">${infoText}</div>` : '';
+         }
+
+         function formatDate(dateString) {
+             if (!dateString) return '';
+             const date = new Date(dateString);
+             return date.toLocaleDateString('en-US', { 
+                 year: 'numeric', 
+                 month: 'short', 
+                 day: 'numeric' 
+             });
+         }
+
+         function manageAvailability(id) {
+             const item = restaurantData.menuItems.find(item => item.id === id);
+             if (!item) return;
+             
+             const currentStatus = item.available;
+             const action = currentStatus ? 'Mark as Unavailable' : 'Mark as Available';
+             
+             if (currentStatus) {
+                 // Item is currently available, mark as unavailable
+                 const reason = prompt(`Why is "${item.name}" unavailable?\n\nSelect a reason:\n1. Out of Stock\n2. Seasonal Item\n3. Temporarily Unavailable\n4. Custom Reason\n\nEnter number (1-4) or type custom reason:`);
+                 
+                 if (reason === null) return; // User cancelled
+                 
+                 let status = 'unavailable';
+                 let reasonText = '';
+                 
+                 switch(reason.trim()) {
+                     case '1':
+                         status = 'out-of-stock';
+                         reasonText = 'Currently out of stock';
+                         break;
+                     case '2':
+                         status = 'seasonal';
+                         reasonText = 'Seasonal item - not currently in season';
+                         break;
+                     case '3':
+                         status = 'temporarily-unavailable';
+                         reasonText = 'Temporarily unavailable';
+                         break;
+                     case '4':
+                         reasonText = prompt('Enter custom reason:') || 'Unavailable';
+                         break;
+                     default:
+                         reasonText = reason;
+                         break;
+                 }
+                 
+                 let estimatedBack = '';
+                 if (status === 'out-of-stock' || status === 'temporarily-unavailable') {
+                     estimatedBack = prompt('When do you expect this item to be back in stock? (YYYY-MM-DD format, or leave blank):') || '';
+                 }
+                 
+                 item.available = false;
+                 item.availabilityStatus = status;
+                 item.unavailableReason = reasonText;
+                 item.estimatedBackDate = estimatedBack;
+                 
+             } else {
+                 // Item is currently unavailable, mark as available
+                 if (confirm(`Mark "${item.name}" as available again?`)) {
+                     item.available = true;
+                     item.availabilityStatus = 'available';
+                     item.unavailableReason = '';
+                     item.estimatedBackDate = '';
+                 }
+             }
+             
+             saveData();
+             populateMenuItems();
+         }
+
+         function populateCategories() {
+             const filter = document.getElementById('categoryFilter');
+             filter.innerHTML = '<option value="all">All Categories</option>' +
+                 restaurantData.categories.map(cat => 
+                     `<option value="${cat}">${cat}</option>`
+                 ).join('');
+         }
 
         function addMenuItem() {
             const name = prompt('Menu item name:');
@@ -655,19 +835,22 @@
             const description = prompt('Description:') || '';
             const category = prompt('Category (or leave blank for Main Dish):') || 'Main Dish';
             
-            const newItem = {
-                id: Date.now(),
-                name: name,
-                price: price,
-                description: description,
-                category: category,
-                image: '',
-                available: true,
-                isSpicy: false,
-                isVegetarian: false,
-                allergens: '',
-                preparationTime: '15-20 mins'
-            };
+                         const newItem = {
+                 id: Date.now(),
+                 name: name,
+                 price: price,
+                 description: description,
+                 category: category,
+                 image: '',
+                 available: true,
+                 availabilityStatus: 'available',
+                 unavailableReason: '',
+                 estimatedBackDate: '',
+                 isSpicy: false,
+                 isVegetarian: false,
+                 allergens: '',
+                 preparationTime: '15-20 mins'
+             };
             
             restaurantData.menuItems.push(newItem);
             saveData();
@@ -700,13 +883,7 @@
             }
         }
 
-        function toggleItemAvailability(id) {
-            const item = restaurantData.menuItems.find(item => item.id === id);
-            if (item) {
-                item.available = !item.available;
-                saveData();
-            }
-        }
+        
 
         function changeItemImage(id) {
             document.getElementById('imageFileInput').onchange = function(e) {
@@ -894,19 +1071,22 @@
                     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                     const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-                    const importedItems = jsonData.map((item, index) => ({
-                        id: Date.now() + index,
-                        name: item['Menu Item'] || item['Name'] || '',
-                        price: parseFloat(item['Price']) || 0,
-                        description: item['Description'] || '',
-                        category: item['Category'] || 'Main Dish',
-                        image: '',
-                        available: item['Available'] !== 'No',
-                        isSpicy: item['Spicy'] === 'Yes',
-                        isVegetarian: item['Vegetarian'] === 'Yes',
-                        allergens: item['Allergens'] || '',
-                        preparationTime: item['Prep Time'] || '15-20 mins'
-                    }));
+                                         const importedItems = jsonData.map((item, index) => ({
+                         id: Date.now() + index,
+                         name: item['Menu Item'] || item['Name'] || '',
+                         price: parseFloat(item['Price']) || 0,
+                         description: item['Description'] || '',
+                         category: item['Category'] || 'Main Dish',
+                         image: '',
+                         available: item['Available'] !== 'No',
+                         availabilityStatus: item['Available'] === 'No' ? 'out-of-stock' : 'available',
+                         unavailableReason: item['Unavailable Reason'] || '',
+                         estimatedBackDate: item['Expected Back Date'] || '',
+                         isSpicy: item['Spicy'] === 'Yes',
+                         isVegetarian: item['Vegetarian'] === 'Yes',
+                         allergens: item['Allergens'] || '',
+                         preparationTime: item['Prep Time'] || '15-20 mins'
+                     }));
 
                     restaurantData.menuItems = [...restaurantData.menuItems, ...importedItems];
                     saveData();
@@ -920,17 +1100,20 @@
         }
 
         function exportToExcel() {
-            const exportData = restaurantData.menuItems.map(item => ({
-                'Menu Item': item.name,
-                'Price': item.price,
-                'Description': item.description,
-                'Category': item.category,
-                'Available': item.available ? 'Yes' : 'No',
-                'Spicy': item.isSpicy ? 'Yes' : 'No',
-                'Vegetarian': item.isVegetarian ? 'Yes' : 'No',
-                'Allergens': item.allergens,
-                'Prep Time': item.preparationTime
-            }));
+                         const exportData = restaurantData.menuItems.map(item => ({
+                 'Menu Item': item.name,
+                 'Price': item.price,
+                 'Description': item.description,
+                 'Category': item.category,
+                 'Available': item.available ? 'Yes' : 'No',
+                 'Availability Status': item.availabilityStatus || 'available',
+                 'Unavailable Reason': item.unavailableReason || '',
+                 'Expected Back Date': item.estimatedBackDate || '',
+                 'Spicy': item.isSpicy ? 'Yes' : 'No',
+                 'Vegetarian': item.isVegetarian ? 'Yes' : 'No',
+                 'Allergens': item.allergens,
+                 'Prep Time': item.preparationTime
+             }));
 
             const ws = XLSX.utils.json_to_sheet(exportData);
             const wb = XLSX.utils.book_new();
@@ -995,11 +1178,55 @@ Need help? Contact your web developer for technical assistance.
             `);
         }
 
-        // Category filter change handler
-        document.getElementById('categoryFilter').addEventListener('change', populateMenuItems);
+                 // Filter change handlers
+         document.getElementById('categoryFilter').addEventListener('change', populateMenuItems);
+         document.getElementById('availabilityFilter').addEventListener('change', populateMenuItems);
 
-        // Auto-save every 30 seconds
-        setInterval(saveData, 30000);
+         // Auto-save every 30 seconds
+         setInterval(saveData, 30000);
+
+         // Add stock summary display
+         function showStockSummary() {
+             const total = restaurantData.menuItems.length;
+             const available = restaurantData.menuItems.filter(item => item.available).length;
+             const outOfStock = restaurantData.menuItems.filter(item => 
+                 !item.available && item.availabilityStatus === 'out-of-stock'
+             ).length;
+             const seasonal = restaurantData.menuItems.filter(item => 
+                 !item.available && item.availabilityStatus === 'seasonal'
+             ).length;
+             const tempUnavailable = restaurantData.menuItems.filter(item => 
+                 !item.available && item.availabilityStatus === 'temporarily-unavailable'
+             ).length;
+
+             return `
+                 <div class="alert alert-info mb-4">
+                     <h6><i class="fas fa-chart-bar"></i> Stock Summary</h6>
+                     <div class="row text-center">
+                         <div class="col">
+                             <strong>${total}</strong><br>
+                             <small>Total Items</small>
+                         </div>
+                         <div class="col">
+                             <strong class="text-success">${available}</strong><br>
+                             <small>Available</small>
+                         </div>
+                         <div class="col">
+                             <strong class="text-danger">${outOfStock}</strong><br>
+                             <small>Out of Stock</small>
+                         </div>
+                         <div class="col">
+                             <strong class="text-warning">${seasonal}</strong><br>
+                             <small>Seasonal</small>
+                         </div>
+                         <div class="col">
+                             <strong class="text-info">${tempUnavailable}</strong><br>
+                             <small>Temp. Unavailable</small>
+                         </div>
+                     </div>
+                 </div>
+             `;
+         }
     </script>
 </body>
 </html>

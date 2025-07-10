@@ -1,0 +1,175 @@
+{
+  "info": {
+    "name": "Milford India Spice",
+    "tagline": "Authentic Indian Cuisine",
+    "phone": "(508) 478-5800",
+    "address": "123 Main Street, Milford, MA 01757",
+    "email": "info@milfordindispice.com",
+    "website": "https://milfordindispice.com",
+    "hours": {
+      "monday": "11:00 AM - 9:00 PM",
+      "tuesday": "11:00 AM - 9:00 PM",
+      "wednesday": "11:00 AM - 9:00 PM",
+      "thursday": "11:00 AM - 9:00 PM",
+      "friday": "11:00 AM - 11:00 PM",
+      "saturday": "11:00 AM - 10:00 PM",
+      "sunday": "12:00 PM - 9:00 PM"
+    },
+    "socialLinks": {
+      "facebook": "https://www.facebook.com/milfordindispice",
+      "instagram": "https://www.instagram.com/milfordindispice",
+      "twitter": "https://twitter.com/milfordindispice",
+      "tiktok": "https://www.tiktok.com/@milfordindispice"
+    }
+  },
+  "menuItems": [
+    {
+      "id": 1701234567890,
+      "name": "Chicken Tikka Masala",
+      "price": 16.99,
+      "description": "Tender chicken pieces in a rich, creamy tomato-based sauce with aromatic spices",
+      "category": "Main Dish",
+      "image": "",
+      "available": true,
+      "availabilityStatus": "available",
+      "unavailableReason": "",
+      "estimatedBackDate": "",
+      "isSpicy": true,
+      "isVegetarian": false,
+      "allergens": "Contains dairy",
+      "preparationTime": "20-25 mins"
+    },
+    {
+      "id": 1701234567891,
+      "name": "Vegetable Biryani",
+      "price": 14.99,
+      "description": "Fragrant basmati rice cooked with mixed vegetables and traditional spices",
+      "category": "Biryani",
+      "image": "",
+      "available": false,
+      "availabilityStatus": "out-of-stock",
+      "unavailableReason": "Waiting for fresh saffron delivery",
+      "estimatedBackDate": "2024-01-15",
+      "isSpicy": false,
+      "isVegetarian": true,
+      "allergens": "",
+      "preparationTime": "25-30 mins"
+    },
+    {
+      "id": 1701234567892,
+      "name": "Mango Kulfi",
+      "price": 6.99,
+      "description": "Traditional Indian ice cream flavored with fresh mango",
+      "category": "Dessert",
+      "image": "",
+      "available": false,
+      "availabilityStatus": "seasonal",
+      "unavailableReason": "Seasonal item - available during summer months",
+      "estimatedBackDate": "",
+      "isSpicy": false,
+      "isVegetarian": true,
+      "allergens": "Contains dairy",
+      "preparationTime": "5 mins"
+    },
+    {
+      "id": 1701234567893,
+      "name": "Lamb Vindaloo",
+      "price": 19.99,
+      "description": "Spicy lamb curry with potatoes in a tangy sauce",
+      "category": "Main Dish",
+      "image": "",
+      "available": false,
+      "availabilityStatus": "temporarily-unavailable",
+      "unavailableReason": "Kitchen equipment maintenance",
+      "estimatedBackDate": "2024-01-10",
+      "isSpicy": true,
+      "isVegetarian": false,
+      "allergens": "",
+      "preparationTime": "30-35 mins"
+    },
+    {
+      "id": 1701234567894,
+      "name": "Samosas",
+      "price": 8.99,
+      "description": "Crispy pastries filled with spiced potatoes and peas (2 pieces)",
+      "category": "Appetizer",
+      "image": "",
+      "available": true,
+      "availabilityStatus": "available",
+      "unavailableReason": "",
+      "estimatedBackDate": "",
+      "isSpicy": false,
+      "isVegetarian": true,
+      "allergens": "Contains gluten",
+      "preparationTime": "10-15 mins"
+    },
+    {
+      "id": 1701234567895,
+      "name": "Masala Chai",
+      "price": 3.99,
+      "description": "Traditional Indian spiced tea with milk",
+      "category": "Beverages",
+      "image": "",
+      "available": true,
+      "availabilityStatus": "available",
+      "unavailableReason": "",
+      "estimatedBackDate": "",
+      "isSpicy": false,
+      "isVegetarian": true,
+      "allergens": "Contains dairy",
+      "preparationTime": "5 mins"
+    }
+  ],
+  "categories": [
+    "Appetizer",
+    "Soup",
+    "Salad", 
+    "Main Dish",
+    "Biryani",
+    "Chicken",
+    "Vegetarian",
+    "Dessert",
+    "Beverages"
+  ],
+  "announcements": [
+    {
+      "id": 1701234567800,
+      "title": "🎉 Grand Opening Special",
+      "content": "Celebrate our grand opening with 20% off your first order! Use code WELCOME20 when ordering online. Valid through the end of this month.",
+      "active": true,
+      "priority": "high",
+      "expiryDate": "2024-01-31"
+    },
+    {
+      "id": 1701234567801,
+      "title": "🕒 Extended Weekend Hours",
+      "content": "We're now open later on Fridays until 11 PM and Saturdays until 10 PM to serve you better!",
+      "active": true,
+      "priority": "medium",
+      "expiryDate": ""
+    },
+    {
+      "id": 1701234567802,
+      "title": "🌟 Catering Services Now Available",
+      "content": "Planning a special event? We now offer full catering services for parties, corporate events, and celebrations. Call us at (508) 478-5800 to discuss your needs!",
+      "active": true,
+      "priority": "low",
+      "expiryDate": ""
+    },
+    {
+      "id": 1701234567803,
+      "title": "❄️ Winter Special Menu",
+      "content": "Try our new winter comfort dishes including Hot Pot Biryani and Spiced Hot Chocolate. Available through February!",
+      "active": false,
+      "priority": "medium",
+      "expiryDate": "2024-02-29"
+    }
+  ],
+  "orderingLinks": {
+    "ubereats": "https://www.ubereats.com/milfordindispice",
+    "doordash": "https://www.doordash.com/milfordindispice",
+    "grubhub": "https://www.grubhub.com/milfordindispice",
+    "website": "https://milfordindispice.com/order",
+    "postmates": "https://postmates.com/milfordindispice"
+  }
+}
