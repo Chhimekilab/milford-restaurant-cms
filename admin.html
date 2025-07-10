@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milford India Spice - Admin Panel</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-color: #d32f2f;
+            --secondary-color: #ff6b35;
+            --accent-color: #ffa726;
+            --dark-color: #2c3e50;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ff6b35 0%, #d32f2f 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .admin-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+        }
+
+        .admin-nav {
+            background: var(--dark-color);
+            padding: 0;
+        }
+
+        .nav-tabs {
+            border: none;
+            background: var(--dark-color);
+        }
+
+        .nav-tabs .nav-link {
+            color: #bdc3c7;
+            background: transparent;
+            border: none;
+            padding: 15px 25px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link.active,
+        .nav-tabs .nav-link:hover {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .tab-content {
+            padding: 30px;
+            min-height: 600px;
+        }
+
+        .menu-item-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .menu-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+        }
+
+        .btn-success {
+            background: var(--accent-color);
+            border: none;
+        }
+
+        .announcement-card {
+            border-left: 4px solid var(--primary-color);
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .priority-high { border-left-color: #dc3545; }
+        .priority-medium { border-left-color: #ffc107; }
+        .priority-low { border-left-color: #28a745; }
+
+        .login-form {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 100px auto;
+        }
+
+        .spice-level {
+            color: #ff4444;
+        }
+
+        .vegetarian {
+            color: #4caf50;
+        }
+
+        .ordering-platform-card {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .photo-upload-area {
+            border: 2px dashed #ccc;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .photo-upload-area:hover {
+            border-color: var(--primary-color);
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Modal -->
+    <div id="authModal" class="modal" tabindex="-1" style="display: block;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-lock"></i> Admin Access Required
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Enter Admin Password:</label>
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="fas fa-sign-in-alt"></i> Access Admin Panel
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Admin Interface -->
+    <div id="adminInterface" style="display: none;">
+        <div class="container-fluid">
+            <div class="admin-container">
+                <!-- Header -->
+                <div class="admin-header">
+                    <h1><i class="fas fa-utensils"></i> Milford India Spice - Admin Panel</h1>
+                    <p class="mb-0">Complete Restaurant Content Management System</p>
+                    <button class="btn btn-outline-light btn-sm mt-2" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="admin-nav">
+                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                        <button class="nav-link active" id="menu-tab" data-bs-toggle="tab" data-bs-target="#menu" type="button" role="tab">
+                            <i class="fas fa-utensils"></i> Menu Management
+                        </button>
+                        <button class="nav-link" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">
+                            <i class="fas fa-info-circle"></i> Restaurant Info
+                        </button>
+                        <button class="nav-link" id="announcements-tab" data-bs-toggle="tab" data-bs-target="#announcements" type="button" role="tab">
+                            <i class="fas fa-bullhorn"></i> Announcements
+                        </button>
+                        <button class="nav-link" id="ordering-tab" data-bs-toggle="tab" data-bs-target="#ordering" type="button" role="tab">
+                            <i class="fas fa-shopping-cart"></i> Ordering Links
+                        </button>
+                        <button class="nav-link" id="export-tab" data-bs-toggle="tab" data-bs-target="#export" type="button" role="tab">
+                            <i class="fas fa-download"></i> Export & Deploy
+                        </button>
+                    </div>
+                </nav>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="nav-tabContent">
+                    
+                    <!-- Menu Management Tab -->
+                    <div class="tab-pane fade show active" id="menu" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3><i class="fas fa-utensils"></i> Menu Items</h3>
+                            <div>
+                                <select id="categoryFilter" class="form-select d-inline-block w-auto me-2">
+                                    <option value="all">All Categories</option>
+                                </select>
+                                <button class="btn btn-success me-2" onclick="addMenuItem()">
+                                    <i class="fas fa-plus"></i> Add Item
+                                </button>
+                                <button class="btn btn-primary me-2" onclick="importMenu()">
+                                    <i class="fas fa-upload"></i> Import Excel
+                                </button>
+                                <button class="btn btn-info" onclick="manageCategories()">
+                                    <i class="fas fa-tags"></i> Categories
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="menuItemsList">
+                            <!-- Menu items will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Restaurant Info Tab -->
+                    <div class="tab-pane fade" id="info" role="tabpanel">
+                        <h3><i class="fas fa-info-circle"></i> Restaurant Information</h3>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5><i class="fas fa-store"></i> Basic Information</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Restaurant Name</label>
+                                            <input type="text" class="form-control" id="restaurantName">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Tagline</label>
+                                            <input type="text" class="form-control" id="restaurantTagline">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Phone Number</label>
+                                            <input type="text" class="form-control" id="restaurantPhone">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Address</label>
+                                            <textarea class="form-control" id="restaurantAddress" rows="2"></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="restaurantEmail">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-success text-white">
+                                        <h5><i class="fas fa-clock"></i> Hours of Operation</h5>
+                                    </div>
+                                    <div class="card-body" id="hoursForm">
+                                        <!-- Hours form will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header bg-info text-white">
+                                        <h5><i class="fas fa-share-alt"></i> Social Media Links</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="form-label">Facebook</label>
+                                                <input type="url" class="form-control" id="facebookLink">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Instagram</label>
+                                                <input type="url" class="form-control" id="instagramLink">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Twitter</label>
+                                                <input type="url" class="form-control" id="twitterLink">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">TikTok</label>
+                                                <input type="url" class="form-control" id="tiktokLink">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary mt-3" onclick="saveRestaurantInfo()">
+                            <i class="fas fa-save"></i> Save Restaurant Information
+                        </button>
+                    </div>
+
+                    <!-- Announcements Tab -->
+                    <div class="tab-pane fade" id="announcements" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3><i class="fas fa-bullhorn"></i> Announcements & Promotions</h3>
+                            <button class="btn btn-success" onclick="addAnnouncement()">
+                                <i class="fas fa-plus"></i> Add Announcement
+                            </button>
+                        </div>
+                        
+                        <div id="announcementsList">
+                            <!-- Announcements will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Ordering Links Tab -->
+                    <div class="tab-pane fade" id="ordering" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3><i class="fas fa-shopping-cart"></i> Online Ordering Platforms</h3>
+                            <button class="btn btn-success" onclick="addOrderingPlatform()">
+                                <i class="fas fa-plus"></i> Add Platform
+                            </button>
+                        </div>
+                        
+                        <div id="orderingLinksList">
+                            <!-- Ordering links will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Export & Deploy Tab -->
+                    <div class="tab-pane fade" id="export" role="tabpanel">
+                        <h3><i class="fas fa-download"></i> Export & Deploy</h3>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5><i class="fas fa-file-excel"></i> Export Data</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p>Download your menu data as an Excel file for backup or sharing.</p>
+                                        <button class="btn btn-primary" onclick="exportToExcel()">
+                                            <i class="fas fa-download"></i> Download Excel File
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-success text-white">
+                                        <h5><i class="fas fa-code"></i> Generate JSON</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p>Export all data as JSON for website integration.</p>
+                                        <button class="btn btn-success" onclick="exportToJSON()">
+                                            <i class="fas fa-download"></i> Download JSON Data
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header bg-info text-white">
+                                        <h5><i class="fas fa-sync"></i> Sync with Website</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p>Instructions for updating your main website:</p>
+                                        <ol>
+                                            <li>Make changes using this admin panel</li>
+                                            <li>Click "Generate JSON" to download updated data</li>
+                                            <li>Replace the data file in your main website</li>
+                                            <li>Deploy your updated website</li>
+                                        </ol>
+                                        <button class="btn btn-info" onclick="showSyncInstructions()">
+                                            <i class="fas fa-question-circle"></i> Detailed Instructions
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden file inputs -->
+    <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display: none;">
+    <input type="file" id="imageFileInput" accept="image/*" style="display: none;">
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/bootstrap.bundle.min.js"></script>
+    <!-- SheetJS for Excel handling -->
+    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <script>
+        // Authentication and Data Management
+        let isAuthenticated = false;
+        let restaurantData = {
+            info: {
+                name: 'Milford India Spice',
+                tagline: 'Authentic Indian Cuisine',
+                phone: '(508) 478-5800',
+                address: '123 Main Street, Milford, MA 01757',
+                email: 'info@milfordindispice.com',
+                hours: {
+                    monday: '11:00 AM - 9:00 PM',
+                    tuesday: '11:00 AM - 9:00 PM',
+                    wednesday: '11:00 AM - 9:00 PM',
+                    thursday: '11:00 AM - 9:00 PM',
+                    friday: '11:00 AM - 11:00 PM',
+                    saturday: '11:00 AM - 10:00 PM',
+                    sunday: '12:00 PM - 9:00 PM'
+                },
+                socialLinks: {
+                    facebook: 'https://www.facebook.com/milfordindispice',
+                    instagram: 'https://www.instagram.com/milfordindispice',
+                    twitter: 'https://twitter.com/milfordindispice',
+                    tiktok: 'https://www.tiktok.com/@milfordindispice'
+                }
+            },
+            menuItems: [],
+            categories: ['Appetizer', 'Soup', 'Salad', 'Main Dish', 'Biryani', 'Chicken', 'Vegetarian', 'Dessert', 'Beverages'],
+            announcements: [
+                {
+                    id: 1,
+                    title: '🎉 Grand Opening Special',
+                    content: 'Enjoy 20% off your first order this week!',
+                    active: true,
+                    priority: 'high',
+                    expiryDate: '2024-12-31'
+                }
+            ],
+            orderingLinks: {
+                ubereats: 'https://www.ubereats.com/milfordindispice',
+                doordash: 'https://www.doordash.com/milfordindispice',
+                grubhub: 'https://www.grubhub.com/milfordindispice',
+                website: 'https://milfordindispice.com/order'
+            }
+        };
+
+        // Authentication
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            
+            if (password === 'milford2025') {
+                isAuthenticated = true;
+                localStorage.setItem('adminAuth', 'true');
+                document.getElementById('authModal').style.display = 'none';
+                document.getElementById('adminInterface').style.display = 'block';
+                loadStoredData();
+                initializeInterface();
+            } else {
+                alert('Incorrect password. Please try again.');
+            }
+        });
+
+        // Check if already authenticated
+        if (localStorage.getItem('adminAuth') === 'true') {
+            isAuthenticated = true;
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('adminInterface').style.display = 'block';
+            loadStoredData();
+            initializeInterface();
+        }
+
+        function logout() {
+            localStorage.removeItem('adminAuth');
+            location.reload();
+        }
+
+        // Load stored data from localStorage
+        function loadStoredData() {
+            const stored = localStorage.getItem('restaurantData');
+            if (stored) {
+                restaurantData = JSON.parse(stored);
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('restaurantData', JSON.stringify(restaurantData));
+        }
+
+        // Initialize the interface
+        function initializeInterface() {
+            populateRestaurantInfo();
+            populateMenuItems();
+            populateAnnouncements();
+            populateOrderingLinks();
+            populateCategories();
+            populateHoursForm();
+        }
+
+        // Restaurant Info Functions
+        function populateRestaurantInfo() {
+            document.getElementById('restaurantName').value = restaurantData.info.name;
+            document.getElementById('restaurantTagline').value = restaurantData.info.tagline;
+            document.getElementById('restaurantPhone').value = restaurantData.info.phone;
+            document.getElementById('restaurantAddress').value = restaurantData.info.address;
+            document.getElementById('restaurantEmail').value = restaurantData.info.email;
+            
+            document.getElementById('facebookLink').value = restaurantData.info.socialLinks.facebook;
+            document.getElementById('instagramLink').value = restaurantData.info.socialLinks.instagram;
+            document.getElementById('twitterLink').value = restaurantData.info.socialLinks.twitter;
+            document.getElementById('tiktokLink').value = restaurantData.info.socialLinks.tiktok;
+        }
+
+        function populateHoursForm() {
+            const hoursForm = document.getElementById('hoursForm');
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            
+            hoursForm.innerHTML = days.map(day => `
+                <div class="mb-3">
+                    <label class="form-label text-capitalize">${day}</label>
+                    <input type="text" class="form-control" id="hours-${day}" 
+                           value="${restaurantData.info.hours[day]}"
+                           placeholder="11:00 AM - 9:00 PM">
+                </div>
+            `).join('');
+        }
+
+        function saveRestaurantInfo() {
+            restaurantData.info.name = document.getElementById('restaurantName').value;
+            restaurantData.info.tagline = document.getElementById('restaurantTagline').value;
+            restaurantData.info.phone = document.getElementById('restaurantPhone').value;
+            restaurantData.info.address = document.getElementById('restaurantAddress').value;
+            restaurantData.info.email = document.getElementById('restaurantEmail').value;
+            
+            restaurantData.info.socialLinks.facebook = document.getElementById('facebookLink').value;
+            restaurantData.info.socialLinks.instagram = document.getElementById('instagramLink').value;
+            restaurantData.info.socialLinks.twitter = document.getElementById('twitterLink').value;
+            restaurantData.info.socialLinks.tiktok = document.getElementById('tiktokLink').value;
+
+            // Save hours
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            days.forEach(day => {
+                restaurantData.info.hours[day] = document.getElementById(`hours-${day}`).value;
+            });
+
+            saveData();
+            alert('Restaurant information saved successfully!');
+        }
+
+        // Menu Management Functions
+        function populateMenuItems() {
+            const container = document.getElementById('menuItemsList');
+            const filter = document.getElementById('categoryFilter').value;
+            
+            const filteredItems = filter === 'all' ? 
+                restaurantData.menuItems : 
+                restaurantData.menuItems.filter(item => item.category === filter);
+
+            if (filteredItems.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
+                        <h5>No menu items yet</h5>
+                        <p class="text-muted">Add your first menu item to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredItems.map(item => `
+                <div class="menu-item-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-2">
+                            <img src="${item.image || 'https://via.placeholder.com/100x100?text=No+Image'}" 
+                                 alt="${item.name}" class="menu-image">
+                            <button class="btn btn-sm btn-outline-primary mt-2" onclick="changeItemImage(${item.id})">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>${item.name} 
+                                <span class="badge bg-secondary">${item.category}</span>
+                                ${item.isSpicy ? '<i class="fas fa-pepper-hot spice-level" title="Spicy"></i>' : ''}
+                                ${item.isVegetarian ? '<i class="fas fa-leaf vegetarian" title="Vegetarian"></i>' : ''}
+                            </h5>
+                            <p class="text-muted mb-2">${item.description}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-clock"></i> ${item.preparationTime || '15-20 mins'}
+                                ${item.allergens ? ` | <i class="fas fa-exclamation-triangle"></i> ${item.allergens}` : ''}
+                            </small>
+                        </div>
+                        <div class="col-md-2">
+                            <h4 class="text-primary">$${item.price.toFixed(2)}</h4>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" 
+                                       ${item.available ? 'checked' : ''} 
+                                       onchange="toggleItemAvailability(${item.id})">
+                                <label class="form-check-label">Available</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-warning btn-sm me-2" onclick="editMenuItem(${item.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteMenuItem(${item.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function populateCategories() {
+            const filter = document.getElementById('categoryFilter');
+            filter.innerHTML = '<option value="all">All Categories</option>' +
+                restaurantData.categories.map(cat => 
+                    `<option value="${cat}">${cat}</option>`
+                ).join('');
+        }
+
+        function addMenuItem() {
+            const name = prompt('Menu item name:');
+            if (!name) return;
+            
+            const price = parseFloat(prompt('Price:') || '0');
+            const description = prompt('Description:') || '';
+            const category = prompt('Category (or leave blank for Main Dish):') || 'Main Dish';
+            
+            const newItem = {
+                id: Date.now(),
+                name: name,
+                price: price,
+                description: description,
+                category: category,
+                image: '',
+                available: true,
+                isSpicy: false,
+                isVegetarian: false,
+                allergens: '',
+                preparationTime: '15-20 mins'
+            };
+            
+            restaurantData.menuItems.push(newItem);
+            saveData();
+            populateMenuItems();
+        }
+
+        function editMenuItem(id) {
+            const item = restaurantData.menuItems.find(item => item.id === id);
+            if (!item) return;
+            
+            const newName = prompt('Name:', item.name) || item.name;
+            const newPrice = parseFloat(prompt('Price:', item.price)) || item.price;
+            const newDescription = prompt('Description:', item.description) || item.description;
+            const newCategory = prompt('Category:', item.category) || item.category;
+            
+            item.name = newName;
+            item.price = newPrice;
+            item.description = newDescription;
+            item.category = newCategory;
+            
+            saveData();
+            populateMenuItems();
+        }
+
+        function deleteMenuItem(id) {
+            if (confirm('Are you sure you want to delete this menu item?')) {
+                restaurantData.menuItems = restaurantData.menuItems.filter(item => item.id !== id);
+                saveData();
+                populateMenuItems();
+            }
+        }
+
+        function toggleItemAvailability(id) {
+            const item = restaurantData.menuItems.find(item => item.id === id);
+            if (item) {
+                item.available = !item.available;
+                saveData();
+            }
+        }
+
+        function changeItemImage(id) {
+            document.getElementById('imageFileInput').onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const item = restaurantData.menuItems.find(item => item.id === id);
+                        if (item) {
+                            item.image = e.target.result;
+                            saveData();
+                            populateMenuItems();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            document.getElementById('imageFileInput').click();
+        }
+
+        // Announcements Functions
+        function populateAnnouncements() {
+            const container = document.getElementById('announcementsList');
+            
+            if (restaurantData.announcements.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
+                        <h5>No announcements yet</h5>
+                        <p class="text-muted">Add your first announcement</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = restaurantData.announcements.map(ann => `
+                <div class="announcement-card priority-${ann.priority}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <h5>${ann.title}</h5>
+                            <p>${ann.content}</p>
+                            <small class="text-muted">
+                                Priority: ${ann.priority.toUpperCase()}
+                                ${ann.expiryDate ? ` | Expires: ${ann.expiryDate}` : ''}
+                            </small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" 
+                                       ${ann.active ? 'checked' : ''} 
+                                       onchange="toggleAnnouncement(${ann.id})">
+                                <label class="form-check-label">Active</label>
+                            </div>
+                            <button class="btn btn-warning btn-sm" onclick="editAnnouncement(${ann.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteAnnouncement(${ann.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addAnnouncement() {
+            const title = prompt('Announcement title:');
+            if (!title) return;
+            
+            const content = prompt('Announcement content:') || '';
+            const priority = prompt('Priority (high/medium/low):', 'medium') || 'medium';
+            
+            const newAnn = {
+                id: Date.now(),
+                title: title,
+                content: content,
+                active: true,
+                priority: priority,
+                expiryDate: ''
+            };
+            
+            restaurantData.announcements.push(newAnn);
+            saveData();
+            populateAnnouncements();
+        }
+
+        function editAnnouncement(id) {
+            const ann = restaurantData.announcements.find(a => a.id === id);
+            if (!ann) return;
+            
+            ann.title = prompt('Title:', ann.title) || ann.title;
+            ann.content = prompt('Content:', ann.content) || ann.content;
+            ann.priority = prompt('Priority (high/medium/low):', ann.priority) || ann.priority;
+            ann.expiryDate = prompt('Expiry date (YYYY-MM-DD or leave blank):', ann.expiryDate) || ann.expiryDate;
+            
+            saveData();
+            populateAnnouncements();
+        }
+
+        function deleteAnnouncement(id) {
+            if (confirm('Are you sure you want to delete this announcement?')) {
+                restaurantData.announcements = restaurantData.announcements.filter(a => a.id !== id);
+                saveData();
+                populateAnnouncements();
+            }
+        }
+
+        function toggleAnnouncement(id) {
+            const ann = restaurantData.announcements.find(a => a.id === id);
+            if (ann) {
+                ann.active = !ann.active;
+                saveData();
+            }
+        }
+
+        // Ordering Links Functions
+        function populateOrderingLinks() {
+            const container = document.getElementById('orderingLinksList');
+            const links = restaurantData.orderingLinks;
+            
+            container.innerHTML = Object.entries(links).map(([platform, url]) => `
+                <div class="ordering-platform-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="text-capitalize mb-1">${platform}</h5>
+                            <small>${url}</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-light btn-sm me-2" onclick="editOrderingLink('${platform}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteOrderingLink('${platform}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addOrderingPlatform() {
+            const platform = prompt('Platform name (e.g., postmates, seamless):');
+            if (!platform) return;
+            
+            const url = prompt('Ordering URL:');
+            if (!url) return;
+            
+            restaurantData.orderingLinks[platform.toLowerCase()] = url;
+            saveData();
+            populateOrderingLinks();
+        }
+
+        function editOrderingLink(platform) {
+            const newUrl = prompt('New URL:', restaurantData.orderingLinks[platform]);
+            if (newUrl) {
+                restaurantData.orderingLinks[platform] = newUrl;
+                saveData();
+                populateOrderingLinks();
+            }
+        }
+
+        function deleteOrderingLink(platform) {
+            if (confirm(`Remove ${platform} ordering link?`)) {
+                delete restaurantData.orderingLinks[platform];
+                saveData();
+                populateOrderingLinks();
+            }
+        }
+
+        // Import/Export Functions
+        function importMenu() {
+            document.getElementById('excelFileInput').onchange = handleExcelUpload;
+            document.getElementById('excelFileInput').click();
+        }
+
+        function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+                    const importedItems = jsonData.map((item, index) => ({
+                        id: Date.now() + index,
+                        name: item['Menu Item'] || item['Name'] || '',
+                        price: parseFloat(item['Price']) || 0,
+                        description: item['Description'] || '',
+                        category: item['Category'] || 'Main Dish',
+                        image: '',
+                        available: item['Available'] !== 'No',
+                        isSpicy: item['Spicy'] === 'Yes',
+                        isVegetarian: item['Vegetarian'] === 'Yes',
+                        allergens: item['Allergens'] || '',
+                        preparationTime: item['Prep Time'] || '15-20 mins'
+                    }));
+
+                    restaurantData.menuItems = [...restaurantData.menuItems, ...importedItems];
+                    saveData();
+                    populateMenuItems();
+                    alert(`Successfully imported ${importedItems.length} menu items!`);
+                } catch (error) {
+                    alert('Error reading Excel file. Please check the format.');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function exportToExcel() {
+            const exportData = restaurantData.menuItems.map(item => ({
+                'Menu Item': item.name,
+                'Price': item.price,
+                'Description': item.description,
+                'Category': item.category,
+                'Available': item.available ? 'Yes' : 'No',
+                'Spicy': item.isSpicy ? 'Yes' : 'No',
+                'Vegetarian': item.isVegetarian ? 'Yes' : 'No',
+                'Allergens': item.allergens,
+                'Prep Time': item.preparationTime
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Menu');
+            XLSX.writeFile(wb, `milford_india_spice_menu_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        function exportToJSON() {
+            const dataStr = JSON.stringify(restaurantData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `milford_india_spice_data_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function manageCategories() {
+            const action = prompt('Add or Delete category? (type "add" or "delete")');
+            if (action === 'add') {
+                const newCat = prompt('Category name:');
+                if (newCat && !restaurantData.categories.includes(newCat)) {
+                    restaurantData.categories.push(newCat);
+                    saveData();
+                    populateCategories();
+                }
+            } else if (action === 'delete') {
+                const catToDelete = prompt('Category to delete:');
+                if (catToDelete && confirm(`Delete "${catToDelete}" category?`)) {
+                    restaurantData.categories = restaurantData.categories.filter(c => c !== catToDelete);
+                    saveData();
+                    populateCategories();
+                }
+            }
+        }
+
+        function showSyncInstructions() {
+            alert(`
+Detailed Sync Instructions:
+
+1. BACKUP: Always backup your current website before making changes
+
+2. UPDATE CONTENT: Use this admin panel to:
+   - Add/edit/delete menu items
+   - Update restaurant information
+   - Manage announcements
+   - Update ordering links
+
+3. EXPORT DATA: Click "Download JSON Data" to get the updated data file
+
+4. INTEGRATE: In your main website code:
+   - Replace the restaurant data with the exported JSON
+   - Update your menu display code to use the new data structure
+   - Test all functionality locally
+
+5. DEPLOY: Upload your updated website files
+
+6. VERIFY: Check that all changes appear correctly on your live site
+
+Need help? Contact your web developer for technical assistance.
+            `);
+        }
+
+        // Category filter change handler
+        document.getElementById('categoryFilter').addEventListener('change', populateMenuItems);
+
+        // Auto-save every 30 seconds
+        setInterval(saveData, 30000);
+    </script>
+</body>
+</html>
