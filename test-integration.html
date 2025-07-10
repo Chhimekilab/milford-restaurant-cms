@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Integration - Milford India Spice</title>
+    <style>
+        /* Your existing website styles would go here */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #d32f2f, #ff6b35);
+            color: white;
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .hero-title {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .section {
+            background: white;
+            margin: 30px 0;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            color: #d32f2f;
+            border-bottom: 3px solid #ff6b35;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        
+        /* Basic menu item styling */
+        .menu-item {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #fdfdfd;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .item-image img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        .item-content {
+            flex: 1;
+        }
+        
+        .item-name {
+            color: #d32f2f;
+            margin: 0 0 10px 0;
+        }
+        
+        .item-description {
+            color: #666;
+            margin: 0 0 15px 0;
+        }
+        
+        .item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .item-price {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ff6b35;
+        }
+        
+        .prep-time {
+            color: #888;
+            font-size: 0.9em;
+        }
+        
+        /* Simple grid for announcements */
+        .announcement {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        .announcement h4 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+        }
+        
+        .announcement p {
+            margin: 0;
+            color: #424242;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2em;
+            }
+            
+            .menu-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .item-footer {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Your existing header -->
+    <header>
+        <h1 class="hero-title">🍛 Milford India Spice</h1>
+        <p class="hero-subtitle">Authentic Indian Cuisine in the Heart of Milford</p>
+    </header>
+
+    <div class="container">
+        <!-- Current Announcements Section -->
+        <section class="section">
+            <h2>📢 Latest News & Announcements</h2>
+            <!-- This div will be populated by the CMS -->
+            <div id="announcements">
+                <p>Loading announcements...</p>
+            </div>
+        </section>
+
+        <!-- Restaurant Hours Section -->
+        <section class="section">
+            <h2>🕒 Hours of Operation</h2>
+            <!-- This div will be populated by the CMS -->
+            <div id="hours">
+                <p>Loading hours...</p>
+            </div>
+        </section>
+
+        <!-- Menu Section -->
+        <section class="section">
+            <h2>🍽️ Our Menu</h2>
+            
+            <!-- Category filters will be automatically added here by the CMS -->
+            
+            <!-- This div will be populated by the CMS with menu items -->
+            <div id="menu-container">
+                <p>Loading menu items...</p>
+            </div>
+        </section>
+
+        <!-- Online Ordering Section -->
+        <section class="section">
+            <h2>🛒 Order Online</h2>
+            <p>Order for delivery or pickup through our partner platforms:</p>
+            <!-- This div will be populated by the CMS -->
+            <div id="ordering-links">
+                <p>Loading ordering options...</p>
+            </div>
+        </section>
+
+        <!-- Social Media Section -->
+        <section class="section">
+            <h2>📱 Follow Us</h2>
+            <p>Stay connected with us on social media for updates and special offers:</p>
+            <!-- This div will be populated by the CMS -->
+            <div id="social-links">
+                <p>Loading social links...</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- Include the CMS integration script -->
+    <!-- This ONE line is all you need to add to your existing website! -->
+    <script src="quick-integration.js"></script>
+    
+    <!-- Optional: Add some demo functionality -->
+    <script>
+        // Example of how to manually refresh the CMS data
+        // You can call this function anytime to reload content
+        function refreshContent() {
+            if (window.refreshMilfordCMS) {
+                window.refreshMilfordCMS();
+                console.log('Content refreshed from admin panel!');
+            }
+        }
+        
+        // Example: Refresh content every 5 minutes in case admin makes changes
+        setInterval(refreshContent, 5 * 60 * 1000);
+        
+        // Log when CMS integration is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 MilfordIndiaSpice website loaded with CMS integration');
+            
+            // Optional: Show a subtle notification when content loads
+            setTimeout(() => {
+                if (window.MilfordCMS) {
+                    console.log('✅ CMS data loaded successfully');
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
